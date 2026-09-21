@@ -8,5 +8,4 @@ Alternatively, if you need to modify the content of the package, import it as a 
 
 Dependencies:
 
-- `https://github.com/AnotheRealitySrl/Reflectis-Core.git`
-- `https://github.com/AnotheRealitySrl/Reflectis-SDK.git`
+- `com.anotherealitysrl.virtuademy-sdk-graphs` (brings `com.anotherealitysrl.spacs-utility`)
