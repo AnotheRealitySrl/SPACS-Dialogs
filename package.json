@@ -20,6 +20,8 @@
     }
   ],
   "dependencies": {
-    "com.anotherealitysrl.virtuademy-sdk-graphs": "2.0.0"
+    "com.anotherealitysrl.virtuademy-sdk-graphs": "2.0.0",
+    "com.unity.addressables": "2.2.2",
+    "com.unity.ugui": "2.0.0"
   }
 }

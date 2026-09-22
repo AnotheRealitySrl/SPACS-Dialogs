@@ -2,7 +2,6 @@
   "name": "SPACS.Dialogs",
   "rootNamespace": "SPACS.Dialogs",
   "references": [
-    "I2.Loc",
     "SPACS.Graphs",
     "Unity.TextMeshPro",
     "Unity.Addressables",
