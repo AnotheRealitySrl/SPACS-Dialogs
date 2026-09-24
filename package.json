@@ -1,16 +1,16 @@
 {
-  "name": "com.anotherealitysrl.virtuademy-sdk-dialogs",
-  "displayName": "Virtuademy-SDK-Dialogs",
-  "version": "2.1.0",
+  "name": "com.anotherealitysrl.spacs-dialogs",
+  "displayName": "SPACS-Dialogs",
+  "version": "3.0.0",
   "unity": "2020.1",
-  "description": "Virtuademy Dialogs module",
+  "description": "Dialogs module, built on SPACS-Graphs. Carries no platform.",
   "keywords": [
     "unity"
   ],
   "category": "Unity",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AnotheRealitySrl/Virtuademy-SDK-Dialogs"
+    "url": "https://github.com/AnotheRealitySrl/SPACS-Dialogs"
   },
   "samples": [
     {
@@ -20,7 +20,7 @@
     }
   ],
   "dependencies": {
-    "com.anotherealitysrl.virtuademy-sdk-graphs": "2.0.0",
+    "com.anotherealitysrl.spacs-graphs": "3.0.0",
     "com.unity.addressables": "2.2.2",
     "com.unity.ugui": "2.0.0"
   }
