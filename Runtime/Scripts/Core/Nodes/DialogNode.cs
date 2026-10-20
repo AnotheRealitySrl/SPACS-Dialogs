@@ -122,15 +122,15 @@ namespace SPACS.Dialogs
                 }
                 else if (option2.LinkedNodes.Count > 0)
                 {
-                    return option1.LinkedNodes.FirstOrDefault();
+                    return option2.LinkedNodes.FirstOrDefault();
                 }
                 else if (option3.LinkedNodes.Count > 0)
                 {
-                    return option1.LinkedNodes.FirstOrDefault();
+                    return option3.LinkedNodes.FirstOrDefault();
                 }
                 else if (option4.LinkedNodes.Count > 0)
                 {
-                    return option1.LinkedNodes.FirstOrDefault();
+                    return option4.LinkedNodes.FirstOrDefault();
                 }
                 else return null;
             }
@@ -321,9 +321,18 @@ namespace SPACS.Dialogs
                 }
 
                 updateColor();
-                onStatusChanged.AddListener(oldStatus => updateColor());
+
+                // The panel redraws a node many times: keep one listener per node, the one of
+                // the element drawn last, instead of adding one on every redraw.
+                if (editorColorListener != null)
+                    onStatusChanged.RemoveListener(editorColorListener);
+                editorColorListener = oldStatus => updateColor();
+                onStatusChanged.AddListener(editorColorListener);
             }
         }
+
+        [System.NonSerialized]
+        private UnityAction<DialogStatus> editorColorListener;
 #endif
     }
 }

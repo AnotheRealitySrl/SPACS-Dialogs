@@ -1,5 +1,24 @@
 # Release notes
 
+## Unreleased
+
+Minor bump (fixes and one additive member, `DialogSystem.IsAdvancing`).
+
+### Fixed
+- **`ResetDialogPath` no longer overflows the stack on a dialog graph that loops back** (A -> B -> A):
+  the walk keeps a visited set.
+- `ContinueDialog` with no dialog in progress logs a warning instead of throwing; `CancelDialog`
+  then only raises `dialogCanceled`.
+- `DialogNode.Next` returned option 1's node when only option 2, 3 or 4 was connected.
+- **The dialog panel no longer closes and restarts on every step.** Between the current dialog's
+  completion and the next one's start no dialog is in progress, and `DialogPanelControllerGeneric`
+  took that for the end of the path (hiding the panel and raising `OnNewDialogStart` again). The new
+  `DialogSystem.IsAdvancing` says the path goes on; the order of `dialogChanged` events is unchanged.
+- A button group with too few labels no longer shifts the label lists of the groups after it: every
+  group keeps its index, and labels it lacks are skipped. A dialog with more options than the panel
+  has groups logs a warning instead of throwing.
+- The graph panel no longer adds a status listener to a dialog node on every redraw in Play mode.
+
 ## v3.0.0
 
 ### Changed

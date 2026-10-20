@@ -142,6 +142,12 @@ namespace SPACS.Dialogs
                 SetAvatar(currentDialog.Avatar, currentDialog.CharacterAvatarSide, currentDialogPanel);
                 SetDialogText(currentDialog.Dialog, currentDialogPanel);
             }
+            // The system is moving to the next dialog: keep the panel and the dialog
+            // session, the next dialog's change comes right after.
+            else if (dialogSystem.IsAdvancing)
+            {
+                return;
+            }
             // if the there is no dialog in progress, disables the dialog panel.
             else
             {
@@ -204,11 +210,19 @@ namespace SPACS.Dialogs
                     Debug.LogWarning("Not enough Button type components found in button group " + i +
                         " (" + panel.choiceButtonGroups[i].name + ").");
                 }
-                else
-                {
-                    panel.choiceButtonLabels.Add(componentList);
-                }
+                // Always added, so that choiceButtonLabels[n] stays the group of n options:
+                // SetChoiceButtons skips the labels a short group does not have.
+                panel.choiceButtonLabels.Add(componentList);
             }
+        }
+
+        private static void SetChoiceLabel(DialogPanel panel, int group, int index, string label)
+        {
+            if (panel.choiceButtonLabels == null || group >= panel.choiceButtonLabels.Count)
+                return;
+            List<TMP_Text> labels = panel.choiceButtonLabels[group];
+            if (index < labels.Count && labels[index] != null)
+                labels[index].text = label;
         }
 
         public virtual void SetSettings(float _charactersPerSecond, float _interpunctuationDelay, bool _enableSkip, bool _quickSkip, int _skipSpeedup,
@@ -227,29 +241,35 @@ namespace SPACS.Dialogs
             }
 
             int optionCount = dialog.OptionCount;
+            if (optionCount >= currentPanel.choiceButtonGroups.Length)
+            {
+                Debug.LogWarning($"Dialog '{dialog.Dialog}' has {optionCount} options, but the panel " +
+                    $"'{currentPanel.panelObject.name}' has no button group for that many.");
+                return;
+            }
             currentPanel.choiceButtonGroups[optionCount].SetActive(true);
             switch (optionCount)
             {
                 case 0:
-                    currentPanel.choiceButtonLabels[0][0].text = dialog.Option1Label;
+                    SetChoiceLabel(currentPanel, 0, 0, dialog.Option1Label);
                     break;
                 case 1:
-                    currentPanel.choiceButtonLabels[1][0].text = dialog.Option1Label;
+                    SetChoiceLabel(currentPanel, 1, 0, dialog.Option1Label);
                     break;
                 case 2:
-                    currentPanel.choiceButtonLabels[2][0].text = dialog.Option1Label;
-                    currentPanel.choiceButtonLabels[2][1].text = dialog.Option2Label;
+                    SetChoiceLabel(currentPanel, 2, 0, dialog.Option1Label);
+                    SetChoiceLabel(currentPanel, 2, 1, dialog.Option2Label);
                     break;
                 case 3:
-                    currentPanel.choiceButtonLabels[3][0].text = dialog.Option1Label;
-                    currentPanel.choiceButtonLabels[3][1].text = dialog.Option2Label;
-                    currentPanel.choiceButtonLabels[3][2].text = dialog.Option3Label;
+                    SetChoiceLabel(currentPanel, 3, 0, dialog.Option1Label);
+                    SetChoiceLabel(currentPanel, 3, 1, dialog.Option2Label);
+                    SetChoiceLabel(currentPanel, 3, 2, dialog.Option3Label);
                     break;
                 case 4:
-                    currentPanel.choiceButtonLabels[4][0].text = dialog.Option1Label;
-                    currentPanel.choiceButtonLabels[4][1].text = dialog.Option2Label;
-                    currentPanel.choiceButtonLabels[4][2].text = dialog.Option3Label;
-                    currentPanel.choiceButtonLabels[4][3].text = dialog.Option4Label;
+                    SetChoiceLabel(currentPanel, 4, 0, dialog.Option1Label);
+                    SetChoiceLabel(currentPanel, 4, 1, dialog.Option2Label);
+                    SetChoiceLabel(currentPanel, 4, 2, dialog.Option3Label);
+                    SetChoiceLabel(currentPanel, 4, 3, dialog.Option4Label);
                     break;
             }
         }

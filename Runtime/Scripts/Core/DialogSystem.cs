@@ -133,6 +133,11 @@ namespace SPACS.Dialogs
         public void ContinueDialog(int choice)
         {
             DialogNode current = CurrentDialog;
+            if (current == null)
+            {
+                Debug.LogWarning($"[DialogSystem] ContinueDialog({choice}) on '{name}' with no dialog in progress: ignored.");
+                return;
+            }
             DialogNode next = current.GetNextAt(choice);
             
             //TODO: set the status change and the event invocation locally on the DialogNode
@@ -156,42 +161,76 @@ namespace SPACS.Dialogs
                     break;
             }
 
-            current.Status = DialogStatus.Completed;
             if (next == null)
             {
+                current.Status = DialogStatus.Completed;
                 ResetDialogPath(current);
                 dialogPathEnded.Invoke();
             }
             else
             {
+                // Between the two status changes no dialog is in progress: IsAdvancing tells
+                // the listeners of dialogChanged that the path goes on, so a panel does not
+                // close and reopen (and restart the dialog) on every step.
+                IsAdvancing = true;
+                try
+                {
+                    current.Status = DialogStatus.Completed;
+                }
+                finally
+                {
+                    IsAdvancing = false;
+                }
                 next.Status = DialogStatus.InProgress;
             }
         }
 
+        ///////////////////////////////////////////////////////////////////////////
         /// <summary>
-        /// This can be called to stop a dialog session, even if the last node in a 
+        /// True while <see cref="ContinueDialog"/> moves from a dialog to the next one:
+        /// the current dialog is already completed and the next one not yet in progress,
+        /// so <see cref="CurrentDialog"/> is null although the dialog path goes on.
+        /// </summary>
+        public bool IsAdvancing { get; private set; }
+
+        /// <summary>
+        /// This can be called to stop a dialog session, even if the last node in a
         /// dialog path hasn't been reached.
         /// </summary>
         public void CancelDialog()
         {
-            ResetDialogPath(CurrentDialog);
+            DialogNode current = CurrentDialog;
+            if (current != null)
+                ResetDialogPath(current);
             dialogCanceled.Invoke();
         }
 
         ///////////////////////////////////////////////////////////////////////////
         /// <summary>
-        /// Recursively resets the status of the parameter node and all the nodes 
+        /// Recursively resets the status of the parameter node and all the nodes
         /// that led to it.
         /// </summary>
         /// <param name="node"></param>
         public void ResetDialogPath(DialogNode node)
         {
-            var previousNodes = node.Inputs;
-            foreach(DialogNode previous in previousNodes)
+            if (node == null)
+                return;
+            ResetDialogPath(node, new HashSet<DialogNode>());
+        }
+
+        // The visited set stops the walk on a graph that loops back (A -> B -> A), which
+        // otherwise recursed until the stack overflowed: the statuses are reset only after
+        // the predecessors have been walked.
+        private void ResetDialogPath(DialogNode node, HashSet<DialogNode> visited)
+        {
+            if (!visited.Add(node))
+                return;
+
+            foreach (DialogNode previous in node.Inputs)
             {
                 if (previous.Status != DialogStatus.Todo)
                 {
-                    ResetDialogPath(previous);
+                    ResetDialogPath(previous, visited);
                 }
             }
             node.Status = DialogStatus.Todo;
